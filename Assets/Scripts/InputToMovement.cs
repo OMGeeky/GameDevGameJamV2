@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 
 using UnityEngine;
 
@@ -10,29 +9,29 @@ public class InputToMovement : MonoBehaviour
     private CharacterController2D controller2D;
     private Character character;
 
-    void OnEnable()
+    private void OnEnable()
     {
         controller2D = GetComponent<CharacterController2D>();
         character = GetComponent<Character>();
+
         // interactTimer = 0;
     }
 
     // Update is called once per frame
-    [SerializeField]
-    private float interactTimer = 0;
-    [SerializeField]
-    private float interactThreshold = 3;
-    [SerializeField]
-    private float reloadTimer = 0;
-    [SerializeField]
-    private float reloadThreshold = 1;
+    [SerializeField] private float interactTimer;
+    [SerializeField] private float interactThreshold = 1;
+    [SerializeField] private float reloadTimer;
+    [SerializeField] private float reloadThreshold = 1;
+    [SerializeField] private float attachTimer;
+    [SerializeField] private float attachThreshold = 1;
 
-    void Update()
+    private void Update()
     {
         if ( !character.isActivePlayer )
             return;
+
         // if ( controller2D == null )
-            // return;
+        // return;
 
         var horizontal = Input.GetAxis( "Horizontal" );
         var jump = Input.GetButton( "Jump" );
@@ -40,7 +39,7 @@ public class InputToMovement : MonoBehaviour
         // var crouch = Input.GetButton( "Crouch" );
         if ( horizontal != 0 || jump )
         {
-            controller2D.Move( horizontal , false , jump );
+            controller2D.Move( horizontal , jump );
         }
 
         var interact = Input.GetButton( "Interact" );
@@ -58,6 +57,7 @@ public class InputToMovement : MonoBehaviour
             character.KillSelf();
             interactTimer = 0;
         }
+
         var reload = Input.GetButton( "Reload" );
         if ( reload )
         {
@@ -70,8 +70,26 @@ public class InputToMovement : MonoBehaviour
 
         if ( reloadTimer >= reloadThreshold )
         {
-            character.Dissolve();
+            character.Eat();
             reloadTimer = 0;
         }
+
+        var attach = Input.GetButton( "Attach" );
+        if ( attach )
+        {
+            attachTimer += Time.deltaTime;
+        }
+        else
+        {
+            attachTimer = 0;
+        }
+
+        if ( attachTimer >= attachThreshold )
+        {
+            character.Attach();
+            attachTimer = 0;
+        }
+
+        Console.WriteLine();
     }
 }
