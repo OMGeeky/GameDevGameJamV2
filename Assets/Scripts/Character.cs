@@ -7,27 +7,34 @@ using Unity.Mathematics;
 using UnityEngine;
 
 
-[RequireComponent( typeof(Renderer) )]
+[RequireComponent( typeof(SpriteRenderer) )]
 public class Character : MonoBehaviour
 {
-    public bool isActivePlayer;
-
-    public Character root;
 
 #region Components
 
     private new Collider2D collider;
+    private SpriteRenderer spriteRenderer;
 
 #endregion
 
 #region Inspector
 
+    [SerializeField] public bool isActivePlayer;
+    [SerializeField] private Sprite aliveSprite;
+    [SerializeField] private Sprite deadSprite;
     [SerializeField] private float dissolveSpeed = 0.05f;
     [SerializeField] private Transform spawnPosition;
     [SerializeField] private Transform parentForNew;
     [SerializeField] private LayerMask findLayerMask;
     [SerializeField] private float eatRange = 2.5f;
     [SerializeField] private float attachRange = .5f;
+
+#endregion
+
+#region Other public data
+
+    public Character root;
 
 #endregion
 
@@ -41,10 +48,11 @@ public class Character : MonoBehaviour
 
     public List<Character> spawnedObjects = new();
     private static readonly int DissolveAmount = Shader.PropertyToID( "_DissolveAmount" );
+    private readonly Collider2D[] findColliders = new Collider2D[50];
 
-    private IEnumerator Start()
+    private void Start()
     {
-        yield return new WaitForSeconds( 0.5f );
+        // yield return new WaitForSeconds( 0.5f );
 
         if ( root == null )
         {
@@ -58,9 +66,9 @@ public class Character : MonoBehaviour
 
     private void OnEnable()
     {
-        GetComponent<InputToMovement>();
-        GetComponent<CharacterController2D>();
         collider = GetComponent<Collider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sprite = aliveSprite;
         if ( root != null )
         {
             Spawned -= OnSpawned;
@@ -93,6 +101,7 @@ public class Character : MonoBehaviour
         // inputToMovement.enabled = false;
         isActivePlayer = false;
         SpawnNew();
+        spriteRenderer.sprite = deadSprite;
 
         // newPlayer.GetComponent<InputToMovement>().enabled = true;
         // newPlayer.GetComponent<CharacterController2D>().enabled = true;
@@ -126,15 +135,18 @@ public class Character : MonoBehaviour
         float closestDistance = float.MaxValue;
         var t = transform;
         var localScale = t.localScale;
-        Collider2D[] colliders = new Collider2D[50];
+        Array.Clear( findColliders , 0 , findColliders.Length );
         Physics2D.OverlapBoxNonAlloc( point: t.position
                                     , size: new Vector2( localScale.x + range , localScale.y + range )
                                     , angle: t.rotation.eulerAngles.z
-                                    , results: colliders
+                                    , results: findColliders
                                     , layerMask: findLayerMask );
 
-        foreach ( Collider2D coll in colliders )
+        foreach ( Collider2D coll in findColliders )
         {
+            if ( coll == null )
+                continue;
+
             if ( !coll.TryGetComponent( out Character character ) )
                 continue;
 

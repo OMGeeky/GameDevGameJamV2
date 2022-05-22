@@ -10,6 +10,7 @@ using UnityEngine.Events;
 /// </summary>
 public class CharacterController2D : MonoBehaviour
 {
+    public bool active = true;
     [SerializeField] private float jumpForce = 50f;                            // Amount of force added when the player jumps.
     [Range( 0 , .3f )] [SerializeField] private float movementSmoothing = .05f;// How much to smooth out the movement
     [SerializeField] private bool airControl = true;                           // Whether or not a player can steer while jumping;
@@ -33,6 +34,9 @@ public class CharacterController2D : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if ( !active )
+            return;
+        
         m_Grounded = false;
 
         Array.Clear( colliders , 0 , colliders.Length );
@@ -65,6 +69,9 @@ public class CharacterController2D : MonoBehaviour
 
     public void Move( float move , bool jump )
     {
+        if(!active)
+            return;
+        
         //only control the player if grounded or airControl is turned on
         if ( m_Grounded || airControl )
         {

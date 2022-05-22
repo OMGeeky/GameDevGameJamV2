@@ -1,6 +1,7 @@
 using System;
 
 using UnityEngine;
+// ReSharper disable RedundantCheckBeforeAssignment
 
 
 [RequireComponent( typeof(CharacterController2D) , typeof(Character) )]
@@ -13,8 +14,6 @@ public class InputToMovement : MonoBehaviour
     {
         controller2D = GetComponent<CharacterController2D>();
         character = GetComponent<Character>();
-
-        // interactTimer = 0;
     }
 
     // Update is called once per frame
@@ -27,16 +26,15 @@ public class InputToMovement : MonoBehaviour
 
     private void Update()
     {
+        if(controller2D.active != character.isActivePlayer)
+            controller2D.active = character.isActivePlayer;
+        
         if ( !character.isActivePlayer )
             return;
-
-        // if ( controller2D == null )
-        // return;
 
         var horizontal = Input.GetAxis( "Horizontal" );
         var jump = Input.GetButton( "Jump" );
 
-        // var crouch = Input.GetButton( "Crouch" );
         if ( horizontal != 0 || jump )
         {
             controller2D.Move( horizontal , jump );
