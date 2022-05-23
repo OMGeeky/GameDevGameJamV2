@@ -30,6 +30,7 @@ public class Character : MonoBehaviour
     [SerializeField] private LayerMask findLayerMask;
     [SerializeField] private float eatRange = 2.5f;
     [SerializeField] private float attachRange = .5f;
+    [SerializeField] public PauseMenuCaller PauseMenuCaller;
 
 #endregion
 

@@ -26,6 +26,9 @@ public class InputToMovement : MonoBehaviour
 
     private void Update()
     {
+        if ( Time.timeScale == 0 )
+            return;
+        
         if(controller2D.active != character.isActivePlayer)
             controller2D.active = character.isActivePlayer;
         
