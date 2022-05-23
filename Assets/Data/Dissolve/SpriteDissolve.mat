@@ -50,12 +50,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _DissolveAmount: 0
-    - _DissolveBorderWidth: 0.017
+    - _DissolveBorderWidth: 0.046
     - _EnableExternalAlpha: 0
     - _PixelSnap: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 0}
-    - _DissolveBorderColor: {r: 1, g: 0, b: 0, a: 0}
+    - _DissolveBorderColor: {r: 8, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &3279187780055216498
 MonoBehaviour:

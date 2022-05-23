@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using OMGeeky;
+
 using Unity.Mathematics;
 
 using UnityEngine;
@@ -13,7 +15,7 @@ public class Character : MonoBehaviour
 
 #region Components
 
-    private new Collider2D collider;
+    private new CompositeCollider2D collider;
     private SpriteRenderer spriteRenderer;
 
 #endregion
@@ -24,7 +26,6 @@ public class Character : MonoBehaviour
     [SerializeField] private Sprite aliveSprite;
     [SerializeField] private Sprite deadSprite;
     [SerializeField] private float dissolveSpeed = 0.05f;
-    [SerializeField] private Transform spawnPosition;
     [SerializeField] private Transform parentForNew;
     [SerializeField] private LayerMask findLayerMask;
     [SerializeField] private float eatRange = 2.5f;
@@ -34,6 +35,7 @@ public class Character : MonoBehaviour
 
 #region Other public data
 
+    public Checkpoint spawnPosition;
     public Character root;
 
 #endregion
@@ -60,13 +62,13 @@ public class Character : MonoBehaviour
             SpawnNew();
         }
 
-        if ( spawnPosition == null )
-            spawnPosition = transform;
+        // if ( spawnPosition == null )
+            // spawnPosition = transform;
     }
 
     private void OnEnable()
     {
-        collider = GetComponent<Collider2D>();
+        collider = GetComponent<CompositeCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = aliveSprite;
         if ( root != null )
@@ -91,7 +93,7 @@ public class Character : MonoBehaviour
 
     public void KillSelf()
     {
-        if ( math.distance( transform.position , spawnPosition.position ) < 2 )
+        if ( math.distance( transform.position , spawnPosition.transform.position ) < 2 )
         {
             Debug.Log( "Cant restart here, too near to spawn" );
             return;
@@ -109,7 +111,7 @@ public class Character : MonoBehaviour
 
     private void SpawnNew()
     {
-        var newPlayer = Instantiate( root , spawnPosition.position , Quaternion.identity , parentForNew );
+        var newPlayer = Instantiate( root , root.spawnPosition.transform.position , Quaternion.identity , parentForNew );
         newPlayer.Init( root );
         root.spawnedObjects.Add( newPlayer );
         Spawned?.Invoke( newPlayer );
@@ -121,9 +123,16 @@ public class Character : MonoBehaviour
         if ( target == null )
             return;
 
-        var size = target.transform.transform.localScale;
-        size.z = 0;
-        transform.localScale += size;
+        //TODO: buff player after eating
+        // var size = target.transform.transform.localScale;
+        // size.z = 0;
+
+        // var localScale = transform.localScale;
+        // var finalSize = MathHelpers.AddBoxAreaToBox( (Vector2) size , (Vector2) localScale );
+
+        // transform.localScale += size;
+        // localScale = new Vector3( finalSize.x , finalSize.y , localScale.z );
+        // transform.localScale = localScale;
         target.DissolveSelf();
     }
 
@@ -136,9 +145,11 @@ public class Character : MonoBehaviour
         var t = transform;
         var localScale = t.localScale;
         Array.Clear( findColliders , 0 , findColliders.Length );
+        var bounds = collider.bounds;
+        var size = new Vector2( bounds.size.x + range , bounds.size.y + range );
         Physics2D.OverlapBoxNonAlloc( point: t.position
-                                    , size: new Vector2( localScale.x + range , localScale.y + range )
-                                    , angle: t.rotation.eulerAngles.z
+                                    , size: size
+                                    , angle: 0
                                     , results: findColliders
                                     , layerMask: findLayerMask );
 
@@ -207,6 +218,10 @@ public class Character : MonoBehaviour
             return;
 
         target.transform.parent = transform;
+
+        // var targetInput = target.GetComponent<InputToMovement>();
+        target.isActivePlayer = false;
+
         RemovePlayerComponentsFromTarget( target );
     }
 
@@ -214,10 +229,11 @@ public class Character : MonoBehaviour
     {
         var targetRb = target.GetComponent<Rigidbody2D>();
         var targetCol = target.GetComponent<CompositeCollider2D>();
-        var targetController = target.GetComponent<CharacterController2D>();
-        var targetInput = target.GetComponent<InputToMovement>();
-        Destroy( targetInput );
-        Destroy( targetController );
+
+        // var targetController = target.GetComponent<CharacterController2D>();
+        // var targetInput = target.GetComponent<InputToMovement>();
+        // Destroy( targetInput );
+        // Destroy( targetController );
         Destroy( targetCol );
         Destroy( targetRb );
     }

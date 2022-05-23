@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Unity.Mathematics;
+
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -31,12 +33,14 @@ public class CharacterController2D : MonoBehaviour
     }
 
     private Collider2D[] colliders = new Collider2D[10];
+    [SerializeField] private float speed = 10f;
+    [SerializeField] private float maxHorizontalSpeedUp = 30f;
 
     private void FixedUpdate()
     {
         if ( !active )
             return;
-        
+
         m_Grounded = false;
 
         Array.Clear( colliders , 0 , colliders.Length );
@@ -69,18 +73,20 @@ public class CharacterController2D : MonoBehaviour
 
     public void Move( float move , bool jump )
     {
-        if(!active)
+        if ( !active )
             return;
-        
+
         //only control the player if grounded or airControl is turned on
         if ( m_Grounded || airControl )
         {
             // Move the character by finding the target velocity
             var velocity = m_Rigidbody2D.velocity;
-            Vector3 targetVelocity = new Vector2( move * 10f , velocity.y );
+            Vector3 targetVelocity = new Vector2( move * speed , 0 );
+            if ( velocity.x < maxHorizontalSpeedUp && velocity.x > -maxHorizontalSpeedUp )
+                m_Rigidbody2D.AddForce( targetVelocity , ForceMode2D.Impulse );
 
             // And then smoothing it out and applying it to the character
-            m_Rigidbody2D.velocity = Vector3.SmoothDamp( velocity , targetVelocity , ref m_Velocity , movementSmoothing );
+            // m_Rigidbody2D.velocity = Vector3.SmoothDamp( velocity , targetVelocity , ref m_Velocity , movementSmoothing );
         }
 
         // If the player should jump...
