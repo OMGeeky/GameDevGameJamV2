@@ -38,6 +38,7 @@ public class Character : MonoBehaviour
 
     public Checkpoint spawnPosition;
     public Character root;
+    public int currentSize = 1;
 
 #endregion
 
@@ -64,7 +65,7 @@ public class Character : MonoBehaviour
         }
 
         // if ( spawnPosition == null )
-            // spawnPosition = transform;
+        // spawnPosition = transform;
     }
 
     private void OnEnable()
@@ -148,7 +149,7 @@ public class Character : MonoBehaviour
         Array.Clear( findColliders , 0 , findColliders.Length );
         var bounds = collider.bounds;
         var size = new Vector2( bounds.size.x + range , bounds.size.y + range );
-        Physics2D.OverlapBoxNonAlloc( point: t.position
+        Physics2D.OverlapBoxNonAlloc( point: bounds.center
                                     , size: size
                                     , angle: 0
                                     , results: findColliders
@@ -223,6 +224,8 @@ public class Character : MonoBehaviour
         // var targetInput = target.GetComponent<InputToMovement>();
         target.isActivePlayer = false;
 
+        currentSize += target.currentSize;
+
         RemovePlayerComponentsFromTarget( target );
     }
 
@@ -233,6 +236,7 @@ public class Character : MonoBehaviour
 
         // var targetController = target.GetComponent<CharacterController2D>();
         // var targetInput = target.GetComponent<InputToMovement>();
+
         // Destroy( targetInput );
         // Destroy( targetController );
         Destroy( targetCol );

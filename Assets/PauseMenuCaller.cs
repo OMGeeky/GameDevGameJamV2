@@ -10,7 +10,6 @@ namespace OMGeeky
     public class PauseMenuCaller : MonoBehaviour
     {
         private Scene mainMenuScene;
-        private Canvas canvas;
         private MainMenu menu;
         private bool paused;
         public bool Paused
@@ -19,8 +18,8 @@ namespace OMGeeky
             set
             {
                 paused = value;
-                if ( canvas != null )
-                    canvas.enabled = paused;
+                if ( menu != null )
+                    menu.Visible = paused;
 
                 Time.timeScale = value ? 0 : 1;
             }
@@ -31,10 +30,10 @@ namespace OMGeeky
             mainMenuScene = SceneManager.GetSceneByName( "MainMenu" );
             yield return new WaitUntil( () =>
             {
-                if ( mainMenuScene == null || mainMenuScene.buildIndex == -1)
+                if ( mainMenuScene == null || mainMenuScene.buildIndex == -1 )
                 {
                     mainMenuScene = SceneManager.GetSceneByName( "MainMenu" );
-                    if ( mainMenuScene == null || mainMenuScene.buildIndex == -1)
+                    if ( mainMenuScene == null || mainMenuScene.buildIndex == -1 )
                         SceneManager.LoadScene( "MainMenu" , LoadSceneMode.Additive );
 
                     return false;
@@ -56,8 +55,8 @@ namespace OMGeeky
             mainMenuScene = SceneManager.GetSceneByName( "MainMenu" );
 
             var rootGameObjects = mainMenuScene.GetRootGameObjects();
+            Canvas canvas = null;
 
-            // canvas = FindObjectOfType<Canvas>();
             foreach ( GameObject rootGameObject in rootGameObjects )
             {
                 if ( !rootGameObject.TryGetComponent( out canvas ) )
@@ -68,10 +67,13 @@ namespace OMGeeky
             }
 
             if ( canvas == null )
-                Debug.LogError( $"Could not find an instance of {nameof(Canvas)}" );
+            {
+                Debug.LogError( $"Could not find an instance of {nameof(MainMenu)}" );
+                yield break;
+            }
 
             menu = canvas.GetComponentInChildren<MainMenu>();
-            menu.IsPauseScreen = true;
+            menu.Visible = true;
             menu.StartGame -= menuOnStartGame;
             menu.StartGame += menuOnStartGame;
             Paused = true;
@@ -83,7 +85,7 @@ namespace OMGeeky
         {
             if ( Input.GetButtonDown( "Pause" ) )
             {
-                Paused = !canvas.enabled;
+                Paused = !menu.Visible;
             }
         }
     }

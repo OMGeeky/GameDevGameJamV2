@@ -8,16 +8,29 @@ namespace OMGeeky
 {
     public class MainMenu : MonoBehaviour
     {
+        private bool visible;
+        public bool Visible
+        {
+            get => visible;
+            set
+            {
+                visible = value;
+                panel.SetActive( value );
+            }
+        }
+
         public event Action StartGame;
         private Canvas canvas;
-        [SerializeField] public bool IsPauseScreen;
+        // [SerializeField] public bool IsPauseScreen;
+        private GameObject panel;
 
         private void OnEnable()
         {
+            panel = transform.GetChild( 0 ).gameObject;
             Scene scene = SceneManager.GetSceneByName( "MainLevel" );
             if ( !scene.isLoaded )
                 SceneManager.LoadScene( "MainLevel" , LoadSceneMode.Additive );
-            
+
             scene = SceneManager.GetSceneByName( "MainLevel" );
 
 
@@ -25,10 +38,7 @@ namespace OMGeeky
                 canvas = GetComponentInParent<Canvas>();
         }
 
-        public void StartNewGame()
-        {
-            StartGame?.Invoke();
-        }
+        public void StartNewGame() { StartGame?.Invoke(); }
 
         public void Options() { throw new NotImplementedException(); }
 
